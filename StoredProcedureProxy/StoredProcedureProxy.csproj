@@ -55,7 +55,6 @@
     <Compile Include="DefaultMethodResolver.cs" />
     <Compile Include="DefaultProxyActivator.cs" />
     <Compile Include="DefaultProxyGenerator.cs" />
-    <Compile Include="Executor.cs" />
     <Compile Include="Helpers\ObjectHelper.cs" />
     <Compile Include="Helpers\SqlCommandHelper.cs" />
     <Compile Include="Helpers\StringHelper.cs" />

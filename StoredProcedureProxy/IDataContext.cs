@@ -14,6 +14,7 @@ namespace StoredProcedureProxy
 
 		IExecutionContext CreateNewExecutionContext();
 
+		void ExecuteVoid(StoredProcedureDescriptor descriptor, IExecutionContext executionContext);
 		T Execute<T>(StoredProcedureDescriptor descriptor, IExecutionContext executionContext);
 	}
 }

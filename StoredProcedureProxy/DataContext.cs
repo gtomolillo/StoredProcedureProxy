@@ -85,6 +85,11 @@ namespace StoredProcedureProxy
 			return new DefaultExecutionContext(_connectionString, Timeout);
 		}
 
+		public void ExecuteVoid(StoredProcedureDescriptor descriptor, IExecutionContext executionContext)
+		{
+			ExecuteNonQuery(descriptor, executionContext);
+		}
+
 		public T Execute<T>(StoredProcedureDescriptor descriptor, IExecutionContext executionContext)
 		{
 			var disposeContext = false;

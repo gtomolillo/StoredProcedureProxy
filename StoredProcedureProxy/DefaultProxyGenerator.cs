@@ -15,6 +15,7 @@ namespace StoredProcedureProxy
 		private static readonly Type ObjectValueReferenceType = typeof(ObjectValueReference);
 		private static readonly Type ObjectValueReferenceArrayType = typeof(ObjectValueReference[]);
 		private static readonly Type StoredProcedureDescriptorType = typeof(StoredProcedureDescriptor);
+		private static readonly Type VoidType = typeof(void);
 
 		private static readonly MethodInfo ObjectValueReferenceValueGetMethod =
 			ObjectValueReferenceType.GetProperty("Value").GetMethod;
@@ -26,6 +27,9 @@ namespace StoredProcedureProxy
 			BindingFlags.Public | BindingFlags.Instance);
 
 		private static readonly MethodInfo ExecuteMethodInfo = DataContextType.GetMethod("Execute",
+			BindingFlags.Public | BindingFlags.Instance);
+
+		private static readonly MethodInfo ExecuteVoidMethodInfo = DataContextType.GetMethod("ExecuteVoid",
 			BindingFlags.Public | BindingFlags.Instance);
 
 		private readonly ModuleBuilder _moduleBuilder;
@@ -72,7 +76,7 @@ namespace StoredProcedureProxy
 					var descriptor = il.DeclareLocal(StoredProcedureDescriptorType);
 					var arguments = il.DeclareLocal(ObjectValueReferenceArrayType);
 					var objectReference = il.DeclareLocal(ObjectValueReferenceType);
-					var result = il.DeclareLocal(method.ReturnType);
+					var result = method.ReturnType != VoidType ? il.DeclareLocal(method.ReturnType) : null;
 
 					il.Emit(OpCodes.Ldc_I4, parameters.Length);
 					il.Emit(OpCodes.Newarr, ObjectValueReferenceType);
@@ -103,13 +107,6 @@ namespace StoredProcedureProxy
 						il.Emit(OpCodes.Ldc_I4, i);
 						il.Emit(OpCodes.Ldloc, objectReference);
 						il.Emit(OpCodes.Stelem_Ref);
-						//if (parameters[i].ParameterType.IsValueType)
-						//{
-						//}
-						//else
-						//{
-						//	il.Emit(OpCodes.Stelem, parameters[i].ParameterType);
-						//}
 					}
 
 					il.Emit(OpCodes.Nop);
@@ -128,8 +125,20 @@ namespace StoredProcedureProxy
 					il.Emit(OpCodes.Ldloc, descriptor);
 					il.Emit(OpCodes.Ldarg_0);
 					il.Emit(OpCodes.Ldfld, executionContextField);
-					il.Emit(OpCodes.Call, ExecuteMethodInfo.MakeGenericMethod(method.ReturnType));
-					il.Emit(OpCodes.Stloc, result);
+					
+					if (method.ReturnType != VoidType)
+					{
+						il.Emit(OpCodes.Callvirt, ExecuteMethodInfo.MakeGenericMethod(method.ReturnType));
+						if (result != null)
+						{
+							il.Emit(OpCodes.Stloc, result);
+						}
+					}
+					else
+					{
+						il.Emit(OpCodes.Callvirt, ExecuteVoidMethodInfo);
+						il.Emit(OpCodes.Nop);
+					}
 
 					for (var i = 0; i < parameters.Length; i++)
 					{
@@ -143,7 +152,17 @@ namespace StoredProcedureProxy
 						}
 					}
 
-					il.Emit(OpCodes.Ldloc, result);
+					if (method.ReturnType != VoidType)
+					{
+						if (result != null)
+						{
+							il.Emit(OpCodes.Ldloc, result);
+						}
+					}
+					else
+					{
+						il.Emit(OpCodes.Nop);
+					}
 				});
 			}
 
@@ -164,8 +183,11 @@ namespace StoredProcedureProxy
 			var baseCtor = ObjectType.GetConstructor(new Type[0]);
 
 			var il = ctor.GetILGenerator();
-			il.Emit(OpCodes.Ldarg_0);
-			if (baseCtor != null) il.Emit(OpCodes.Call, baseCtor);
+			if (baseCtor != null)
+			{
+				il.Emit(OpCodes.Ldarg_0);
+				il.Emit(OpCodes.Call, baseCtor);
+			}
 
 			body(il);
 

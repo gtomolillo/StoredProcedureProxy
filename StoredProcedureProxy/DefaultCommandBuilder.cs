@@ -22,7 +22,7 @@ namespace StoredProcedureProxy
 
 			foreach (var parameter in descriptor.Parameters)
 			{
-				var sqlParameter = parameter.Value == null || parameter.SqlDbType == SqlDbType.Structured
+				var sqlParameter = parameter.SqlDbType == SqlDbType.Structured
 					? command.Parameters.Add(parameter.Name, parameter.SqlDbType)
 					: command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
 

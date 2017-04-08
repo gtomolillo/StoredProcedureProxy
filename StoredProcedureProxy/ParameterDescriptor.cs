@@ -6,7 +6,7 @@ namespace StoredProcedureProxy
 {
 	public class ParameterDescriptor
 	{
-		public ParameterDescriptor(string name, ObjectValueReference value, Type type, SqlDbType? sqlDbType, bool isOut, bool isReturn)
+		public ParameterDescriptor(string name, ObjectValueReference value, Type type, SqlDbType? sqlDbType, int size, bool isOut, bool isReturn)
 		{
 			if (string.IsNullOrEmpty(name))
 			{
@@ -27,6 +27,7 @@ namespace StoredProcedureProxy
 			IsReturn = isReturn;
 			Type = (value?.Value?.GetType() ?? type).GetUnderlyingType();
 			SqlDbType = sqlDbType ?? type.ToSqlDbType();
+			Size = size;
 		}
 
 		public string Name { get; }
@@ -40,5 +41,6 @@ namespace StoredProcedureProxy
 		public bool IsReturn { get; set; }
 		public Type Type { get; }
 		public SqlDbType SqlDbType { get; }
+		public int Size { get; }
 	}
 }

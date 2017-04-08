@@ -74,7 +74,7 @@ namespace StoredProcedureProxy
 					var objectReference = il.DeclareLocal(ObjectValueReferenceType);
 					var result = il.DeclareLocal(method.ReturnType);
 
-					il.Emit(OpCodes.Ldc_I4_S, parameters.Length);
+					il.Emit(OpCodes.Ldc_I4, parameters.Length);
 					il.Emit(OpCodes.Newarr, ObjectValueReferenceType);
 					il.Emit(OpCodes.Stloc, arguments);
 					for (var i = 0; i < parameters.Length; i++)
@@ -84,14 +84,17 @@ namespace StoredProcedureProxy
 						{
 							throw new Exception();
 						}
-						il.Emit(OpCodes.Ldarg_S, i + 1);
 						if (parameters[i].IsOut)
 						{
 							il.Emit(OpCodes.Ldnull);
 						}
 						else
 						{
-							il.Emit(OpCodes.Box, parameters[i].ParameterType);
+							il.Emit(OpCodes.Ldarg_S, i + 1);
+							if (parameters[i].ParameterType.IsValueType)
+							{
+								il.Emit(OpCodes.Box, parameters[i].ParameterType);
+							}
 						}
 						il.Emit(OpCodes.Newobj, ctor);
 						il.Emit(OpCodes.Stloc, objectReference);
@@ -99,7 +102,14 @@ namespace StoredProcedureProxy
 						il.Emit(OpCodes.Ldloc, arguments);
 						il.Emit(OpCodes.Ldc_I4, i);
 						il.Emit(OpCodes.Ldloc, objectReference);
-						il.Emit(OpCodes.Stelem, parameters[i].ParameterType);
+						il.Emit(OpCodes.Stelem_Ref);
+						//if (parameters[i].ParameterType.IsValueType)
+						//{
+						//}
+						//else
+						//{
+						//	il.Emit(OpCodes.Stelem, parameters[i].ParameterType);
+						//}
 					}
 
 					il.Emit(OpCodes.Nop);

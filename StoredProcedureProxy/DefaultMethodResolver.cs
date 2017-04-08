@@ -25,6 +25,7 @@ namespace StoredProcedureProxy
 						i < arguments.Length ? arguments[i] : null,
 						p.ParameterType,
 						parameterAttribute?.SqlDbType,
+						0,
 						p.ParameterType.IsByRef,
 						returnParameterName == parameterName
 					);
@@ -33,7 +34,7 @@ namespace StoredProcedureProxy
 			if (returnParameterName != null && parameters.All(p => p.Name != returnParameterName))
 			{
 				parameters.Add(new ParameterDescriptor(returnParameterName, new ObjectValueReference(),
-					((MethodInfo)method).ReturnType, attribute.ReturnParameterSqlDbType, false, true));
+					((MethodInfo)method).ReturnType, attribute.ReturnParameterSqlDbType, attribute.ReturnParameterSize, false, true));
 			}
 
 			return new StoredProcedureDescriptor(name, parameters.ToArray());

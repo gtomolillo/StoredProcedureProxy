@@ -22,13 +22,12 @@ namespace StoredProcedureProxy
 
 			foreach (var parameter in descriptor.Parameters)
 			{
-				if (parameter.Value == null)
+				var sqlParameter = command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
+				if (parameter.IsOut || parameter.IsReturn)
 				{
-					command.Parameters.Add(parameter.Name, parameter.SqlDbType);
-				}
-				else
-				{
-					command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
+					sqlParameter.Direction = ParameterDirection.InputOutput;
+					sqlParameter.SqlDbType = parameter.SqlDbType;
+					sqlParameter.Size = parameter.Size;
 				}
 			}
 

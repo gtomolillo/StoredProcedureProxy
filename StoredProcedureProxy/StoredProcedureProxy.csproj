@@ -66,6 +66,7 @@
     <Compile Include="IProxy.cs" />
     <Compile Include="IProxyActivator.cs" />
     <Compile Include="IProxyGenerator.cs" />
+    <Compile Include="IStructuredType.cs" />
     <Compile Include="ObjectValueReference.cs" />
     <Compile Include="ParameterAttribute.cs" />
     <Compile Include="ParameterDescriptor.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="ProxyTypeCache.cs" />
     <Compile Include="StoredProcedureAttribute.cs" />
     <Compile Include="StoredProcedureDescriptor.cs" />
+    <Compile Include="StructuredTypeAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

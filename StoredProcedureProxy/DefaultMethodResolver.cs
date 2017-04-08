@@ -24,7 +24,7 @@ namespace StoredProcedureProxy
 					return new ParameterDescriptor(parameterName,
 						i < arguments.Length ? arguments[i] : null,
 						p.ParameterType,
-						parameterAttribute?.SqlDbType,
+						parameterAttribute?.ActualSqlDbType,
 						p.ParameterType.IsByRef,
 						returnParameterName == parameterName
 					);

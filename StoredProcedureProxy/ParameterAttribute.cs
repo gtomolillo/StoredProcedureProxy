@@ -12,6 +12,13 @@ namespace StoredProcedureProxy
 		}
 
 		public string Name { get; }
-		public SqlDbType? SqlDbType { get; set; }
+
+		public SqlDbType SqlDbType
+		{
+			get { return ActualSqlDbType ?? SqlDbType.Variant; }
+			set { ActualSqlDbType = value; }
+		}
+
+		public SqlDbType? ActualSqlDbType { get; private set; }
 	}
 }

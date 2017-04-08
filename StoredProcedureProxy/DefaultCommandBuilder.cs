@@ -22,13 +22,15 @@ namespace StoredProcedureProxy
 
 			foreach (var parameter in descriptor.Parameters)
 			{
-				if (parameter.Value == null)
+				var sqlParameter = parameter.Value == null || parameter.SqlDbType == SqlDbType.Structured
+					? command.Parameters.Add(parameter.Name, parameter.SqlDbType)
+					: command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
+
+				// ReSharper disable once InvertIf
+				if (parameter.SqlDbType == SqlDbType.Structured)
 				{
-					command.Parameters.Add(parameter.Name, parameter.SqlDbType);
-				}
-				else
-				{
-					command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
+					sqlParameter.TypeName = parameter.SqlTypeName;
+					sqlParameter.Value = ((IStructuredType)parameter.Value)?.ToDataTable();
 				}
 			}
 

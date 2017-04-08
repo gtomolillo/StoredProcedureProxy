@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
+using System.Reflection;
 using StoredProcedureProxy.Helpers;
 
 namespace StoredProcedureProxy
 {
 	public class ParameterDescriptor
 	{
+		private static readonly Type StructuredTypeInterfaceType = typeof(IStructuredType);
+
 		public ParameterDescriptor(string name, ObjectValueReference value, Type type, SqlDbType? sqlDbType, bool isOut, bool isReturn)
 		{
 			if (string.IsNullOrEmpty(name))
@@ -27,6 +31,23 @@ namespace StoredProcedureProxy
 			IsReturn = isReturn;
 			Type = (value?.Value?.GetType() ?? type).GetUnderlyingType();
 			SqlDbType = sqlDbType ?? type.ToSqlDbType();
+
+			// ReSharper disable once InvertIf
+			if (SqlDbType == SqlDbType.Structured)
+			{
+				var attribute = Type.GetCustomAttribute<StructuredTypeAttribute>();
+				if (attribute == null)
+				{
+					throw new ArgumentNullException(nameof(type), "To use Structured parameters, the parameter type must be decorated with StructuredType attribute");
+				}
+				var hasInterface = Type.GetInterfaces().Any(i => i == StructuredTypeInterfaceType);
+				if (!hasInterface)
+				{
+					throw new ArgumentNullException(nameof(type), "To use Structured parameters, the parameter type must implement IStructuredType interface");
+				}
+
+				SqlTypeName = attribute.Name;
+			}
 		}
 
 		public string Name { get; }
@@ -40,5 +61,6 @@ namespace StoredProcedureProxy
 		public bool IsReturn { get; set; }
 		public Type Type { get; }
 		public SqlDbType SqlDbType { get; }
+		public string SqlTypeName { get; }
 	}
 }

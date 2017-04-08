@@ -15,5 +15,6 @@ namespace StoredProcedureProxy
 
 		public string ReturnParameterName { get; set; }
 		public SqlDbType? ReturnParameterSqlDbType { get; set; }
+		public int ReturnParameterSize { get; set; }
 	}
 }

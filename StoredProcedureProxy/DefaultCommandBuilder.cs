@@ -27,6 +27,13 @@ namespace StoredProcedureProxy
 					: command.Parameters.AddWithValue(parameter.Name, parameter.Value.Coalesce(DBNull.Value));
 
 				// ReSharper disable once InvertIf
+				if (parameter.IsOut || parameter.IsReturn)
+				{
+					sqlParameter.Direction = ParameterDirection.InputOutput;
+					sqlParameter.SqlDbType = parameter.SqlDbType;
+					sqlParameter.Size = parameter.Size;
+				}
+				// ReSharper disable once InvertIf
 				if (parameter.SqlDbType == SqlDbType.Structured)
 				{
 					sqlParameter.TypeName = parameter.SqlTypeName;

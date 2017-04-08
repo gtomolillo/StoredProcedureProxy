@@ -116,7 +116,10 @@ namespace StoredProcedureProxy
 					return (T)reader;
 				}
 
-				return _mapper.Map<T>(reader);
+				var result = _mapper.Map<T>(reader);
+				reader.Close();
+
+				return result;
 			}
 			finally
 			{
@@ -129,7 +132,14 @@ namespace StoredProcedureProxy
 
 		public T ExecuteScalar<T>(StoredProcedureDescriptor descriptor, IExecutionContext executionContext)
 		{
-			return (T)ExecuteScalar(descriptor, executionContext);
+			try
+			{
+				return (T)ExecuteScalar(descriptor, executionContext);
+			}
+			catch (Exception)
+			{
+				return default(T);
+			}
 		}
 
 		public object ExecuteScalar(StoredProcedureDescriptor descriptor, IExecutionContext executionContext)
@@ -153,7 +163,7 @@ namespace StoredProcedureProxy
 			return CreateCommand(descriptor, executionContext, command =>
 			{
 				command.ExecuteNonQuery();
-				return (T)command.GetParameter(descriptor.ReturnParameter.Name).Value;
+				return command.GetParameter(descriptor.ReturnParameter.Name).GetValue<T>();
 			});
 		}
 

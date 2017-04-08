@@ -10,7 +10,7 @@ namespace StoredProcedureProxy
 	{
 		private static readonly Type StructuredTypeInterfaceType = typeof(IStructuredType);
 
-		public ParameterDescriptor(string name, ObjectValueReference value, Type type, SqlDbType? sqlDbType, bool isOut, bool isReturn)
+		public ParameterDescriptor(string name, ObjectValueReference value, Type type, SqlDbType? sqlDbType, int size, bool isOut, bool isReturn)
 		{
 			if (string.IsNullOrEmpty(name))
 			{
@@ -31,6 +31,7 @@ namespace StoredProcedureProxy
 			IsReturn = isReturn;
 			Type = (value?.Value?.GetType() ?? type).GetUnderlyingType();
 			SqlDbType = sqlDbType ?? type.ToSqlDbType();
+			Size = size;
 
 			// ReSharper disable once InvertIf
 			if (SqlDbType == SqlDbType.Structured)
@@ -61,6 +62,7 @@ namespace StoredProcedureProxy
 		public bool IsReturn { get; set; }
 		public Type Type { get; }
 		public SqlDbType SqlDbType { get; }
+		public int Size { get; }
 		public string SqlTypeName { get; }
 	}
 }
